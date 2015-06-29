@@ -9,6 +9,8 @@ AGameCharacter::AGameCharacter()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+    State = CharacterStateEnum::None;
+    Team = CharacterTeamEnum::None;
 }
 
 //// Called every frame
@@ -22,15 +24,15 @@ AGameCharacter::AGameCharacter()
 // Called when the game starts or when spawned
 void AGameCharacter::BeginPlay()
 {
+    State = CharacterStateEnum::Idle;
 	Super::BeginPlay();
-	
 }
 
 
 void AGameCharacter::PostInitProperties()
 {
-    Super::PostInitProperties();
     this->Speed = 1.0f;
     this->Health = 100.0f;
     this->Price = { 10.0f, { 10.0f, 1.0f } };
+    Super::PostInitProperties();
 }
