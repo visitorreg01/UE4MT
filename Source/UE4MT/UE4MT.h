@@ -3,3 +3,5 @@
 #pragma once
 
 #include "Engine.h"
+#include "Actors/GameCharacter/GameCharacter.h"
+#include "Actors/GameCharacter/Controllers/GameCharacterAIController.h"

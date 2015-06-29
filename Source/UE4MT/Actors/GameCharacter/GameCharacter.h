@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
 #include "Generic/FUnitPrice.h"
 
 #include "GameCharacter.generated.h"
@@ -8,7 +8,7 @@
 
 
 UCLASS()
-class UE4MT_API AGameCharacter : public AActor
+class UE4MT_API AGameCharacter : public APawn
 {
 	GENERATED_BODY()
 	
@@ -69,4 +69,5 @@ public:
 
     void PostInitProperties();
 
+    virtual void SpawnDefaultController() override;
 };
