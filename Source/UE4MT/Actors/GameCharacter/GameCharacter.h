@@ -37,7 +37,7 @@ public:
 
     //Key of Localized display name
     //TODO: Add 'EditDefaultsOnly' flag
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Localized, Category = "Character")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
     FName DisplyNameKey;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")

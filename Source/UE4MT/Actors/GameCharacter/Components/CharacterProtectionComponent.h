@@ -15,7 +15,7 @@ public:
 
     //Key of Localized display name
     //TODO: Add 'EditDefaultsOnly' flag
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Localized, Category = "Protection")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Protection")
     FName DisplayNameKey;
 
     //Multiplier. Reduces incoming damage

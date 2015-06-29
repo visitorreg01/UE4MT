@@ -15,13 +15,13 @@ class UE4MT_API UCharacterAttackComponent : public UActorComponent
 public:
     //Key of Localized display name
     //TODO: Add 'EditDefaultsOnly' flag
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Localized, Category = "Damage")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
     FName DisplayNameKey;
 
     //
     //Priority used when there are few available attack components
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-    int16 Proprity;
+    int32 Proprity;
 
     //Distance in world units
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
