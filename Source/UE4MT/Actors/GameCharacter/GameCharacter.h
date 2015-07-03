@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GameFramework/Pawn.h"
+#include "GameFramework/Character.h"
 #include "Generic/FUnitPrice.h"
 
 #include "GameCharacter.generated.h"
@@ -8,7 +8,7 @@
 
 
 UCLASS()
-class UE4MT_API AGameCharacter : public APawn
+class UE4MT_API AGameCharacter : public ACharacter
 {
 	GENERATED_BODY()
 	
@@ -70,4 +70,9 @@ public:
     void PostInitProperties();
 
     virtual void SpawnDefaultController() override;
+
+    inline FVector GetMovementVel()
+    {
+        return this->RootComponent->ComponentVelocity;
+    }
 };
