@@ -18,7 +18,13 @@ private:
   
 
     AGameCharacter* FindEnemy();
+    bool FindEnemyAndStartAttack();
+
+
+
+
     void UpdateState();
+
 public:
     AGameCharacter* Holder = nullptr;
 
