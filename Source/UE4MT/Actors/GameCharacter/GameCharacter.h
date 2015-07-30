@@ -1,7 +1,10 @@
-#pragma once
+
+#pragma once 
 
 #include "GameFramework/Character.h"
+#include "UE4MT.h"
 #include "Generic/FUnitPrice.h"
+#include "Generic/EMTTeamEnum.h"
 
 #include "GameCharacter.generated.h"
 
@@ -14,25 +17,9 @@ class UE4MT_API AGameCharacter : public ACharacter
 	
 public:
 
-    UENUM(BlueprintType)
-    enum class CharacterStateEnum : uint8
-    {
-        None            UMETA(DisplayName = "None"), //Exist only for non-initialized character and will not be processed by BP
-        Idle            UMETA(DisplayName = "Idle"),
-        NavToEnemyBase  UMETA(DisplayName = "NavTo EnemyBase"),
-        NavToEnemy      UMETA(DisplayName = "NavTo Enemy"),
-        Fighting        UMETA(DisplayName = "Fighting"),
-        Dying           UMETA(DisplayName = "Dying"),
-        Dead            UMETA(DisplayName = "Dead"),
-    };
 
-    UENUM(BlueprintType)
-    enum class CharacterTeamEnum : uint8
-    {
-        None    UMETA(DisplayName = "None"),
-        Red     UMETA(DisplayName = "Red"), 
-        Blue    UMETA(DisplayName = "Blue"),
-    };
+
+    
 
 
     //Key of Localized display name
@@ -49,11 +36,18 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
     FUnitPrice Price;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
-    CharacterStateEnum State;
+    
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-    CharacterTeamEnum Team;
+    EMTTeamEnum Team;
+
+
+    UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Attack Component Changed"))
+    void OnAttackComponentChanged(const UCharacterAttackComponent* newComponent);
+
+protected:
+  /*  TArray<class UCharacterAttackComponent*> AttackComponents;
+    TArray<class UCharacterProtectionComponent*> ProtectionComponents;*/
 public:	
 
 
@@ -68,6 +62,8 @@ public:
 	//virtual void Tick( float DeltaSeconds ) override;
 
     void PostInitProperties();
+
+    //virtual void PostInitializeComponents() override;
 
     virtual void SpawnDefaultController() override;
 

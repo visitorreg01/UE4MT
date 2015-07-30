@@ -4,14 +4,14 @@
 class MTUtils
 {
 public:
-    static float GetMoveToAcceptanceRadiusSquared(AGameCharacter* charA, AGameCharacter* charB)
+    static float GetMoveToAcceptanceRadiusSquared(AMTGameCharacter* charA, AMTGameCharacter* charB)
     {
         float r1 = charA->GetCapsuleComponent()->GetScaledCapsuleRadius();
         float r2 = charB->GetCapsuleComponent()->GetScaledCapsuleRadius();
         float r = r1 + r2;
         return r * r;
     }
-    static float GetMoveToAcceptanceRadius(AGameCharacter* charA, AGameCharacter* charB)
+    static float GetMoveToAcceptanceRadius(AMTGameCharacter* charA, AMTGameCharacter* charB)
     {
         float r1 = charA->GetCapsuleComponent()->GetScaledCapsuleRadius();
         float r2 = charB->GetCapsuleComponent()->GetScaledCapsuleRadius();

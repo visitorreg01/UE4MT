@@ -1,4 +1,5 @@
 #pragma once
+
 #include "ObjectBase.h"
 #include "FMTPrice.generated.h"
 

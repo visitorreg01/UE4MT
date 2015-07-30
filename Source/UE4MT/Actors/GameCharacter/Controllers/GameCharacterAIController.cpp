@@ -5,6 +5,7 @@
 
 #include "GameCharacterAIController.h"
 
+
 void AGameCharacterAIController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
@@ -13,25 +14,51 @@ void AGameCharacterAIController::Tick(float DeltaSeconds)
 
 
 
-AGameCharacter* AGameCharacterAIController::FindEnemy()
+AMTGameCharacter* AGameCharacterAIController::FindEnemy()
 {
-    AGameCharacter* res = nullptr;
-    for (TActorIterator<AGameCharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+    AMTGameCharacter* res = nullptr;
+    this->CurrentAttackComponent = nullptr;
+
+    TArray<UCharacterAttackComponent*> AttackComponents;
+
+    const TArray<UActorComponent*>& comps = this->Holder->GetComponents();
+    for (UActorComponent* Component : comps)
     {
-        if (ActorItr->Team != this->Holder->Team)
+        UCharacterAttackComponent* AttackComp = Cast<UCharacterAttackComponent>(Component);
+        if (AttackComp)
         {
-            res = *ActorItr;
-            break;
+            AttackComponents.Add(AttackComp);
         }
     }
+    auto f = [](const UCharacterAttackComponent& a, const UCharacterAttackComponent& b){ return a.Priority < b.Priority; };
+    AttackComponents.Sort(f);
 
+    if (AttackComponents.Num() > 0)
+    {
+        UCharacterAttackComponent* SelectedAttack = AttackComponents[0];
+        float CurrentMinDistanceSq = SelectedAttack->DistanceRange.To * SelectedAttack->DistanceRange.To;
+        for (TActorIterator<AMTGameCharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+        {
+            if (ActorItr->Team != this->Holder->Team)
+            {
+                float CurrentTestingDistanceSq = (ActorItr->GetActorLocation() - this->Holder->GetActorLocation()).SizeSquared();
+                if (CurrentTestingDistanceSq <= CurrentMinDistanceSq)
+                {
+                    CurrentMinDistanceSq = CurrentTestingDistanceSq;
+                    res = *ActorItr;
+                    this->CurrentAttackComponent = SelectedAttack;
+                }
+                //break;
+            }
+        }
+    }
     return res;
 }
 
 bool AGameCharacterAIController::FindEnemyAndStartAttack()
 {
     bool res = false;
-    AGameCharacter* target = FindEnemy();
+    AMTGameCharacter* target = FindEnemy();
     if (target != nullptr)
     {
         float AcceptanceRadius = MTUtils::GetMoveToAcceptanceRadius(this->Holder, target);
@@ -51,29 +78,31 @@ bool AGameCharacterAIController::FindEnemyAndStartAttack()
 
 void AGameCharacterAIController::UpdateState()
 {
-    
+
     switch (this->Holder->State)
     {
-        case AGameCharacter::CharacterStateEnum::Idle:
+    case AMTGameCharacter::CharacterStateEnum::Idle:
+    {
+        if (FindEnemyAndStartAttack())
         {
-            if (FindEnemyAndStartAttack())
-            {
-                this->Holder->State = AGameCharacter::CharacterStateEnum::NavToEnemy;
-            }
-            break;
+
+            this->Holder->State = AMTGameCharacter::CharacterStateEnum::NavToEnemy;
         }
-        case AGameCharacter::CharacterStateEnum::NavToEnemy:
+        break;
+    }
+    case AMTGameCharacter::CharacterStateEnum::NavToEnemy:
+    {
+        if (this->GetMoveStatus() == EPathFollowingStatus::Moving)
         {
-            if (this->GetMoveStatus() == EPathFollowingStatus::Moving)
-            {
-                FVector fv = this->Holder->GetMovementVel();
-                int i = 0;
-            }
-            else if (this->GetMoveStatus() == EPathFollowingStatus::Idle)
-            {
-                this->Holder->State = AGameCharacter::CharacterStateEnum::Idle;
-            }
-            break;
+            FVector fv = this->Holder->GetMovementVel();
+            int i = 0;
         }
+        else if (this->GetMoveStatus() == EPathFollowingStatus::Idle)
+        {
+            this->Holder->State = AMTGameCharacter::CharacterStateEnum::Idle;
+            this->Holder->OnAttackComponentChanged(this->CurrentAttackComponent);
+        }
+        break;
+    }
     }
 }

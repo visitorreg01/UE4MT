@@ -3,7 +3,10 @@
 #pragma once
 
 #include "Components/SceneComponent.h"
+#include "UE4MT.h"
 #include "Generic/FRangeFloat.h"
+//#include "Actors/GameCharacter/Controllers/GameCharacterAIController.h"
+
 #include "CharacterAttackComponent.generated.h"
 
 
@@ -21,7 +24,7 @@ public:
     //
     //Priority used when there are few available attack components
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-    int32 Proprity;
+    int32 Priority;
 
     //Distance in world units
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
@@ -38,6 +41,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
     USceneComponent* Visuals;
 
+
+
 public:	
 	// Sets default values for this component's properties
 	UCharacterAttackComponent();
@@ -46,5 +51,5 @@ public:
 	virtual void InitializeComponent() override;
 	
     void PostInitProperties();
-	
+
 };

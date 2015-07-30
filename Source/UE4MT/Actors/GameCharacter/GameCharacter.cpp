@@ -14,12 +14,12 @@ AGameCharacter::AGameCharacter()
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
     
 
-    State = CharacterStateEnum::None;
-    Team = CharacterTeamEnum::None;
+
+    Team = EMTTeamEnum::None;
 }
 
 //// Called every frame
-//void AGameCharacter::Tick( float DeltaTime )
+//void AMTGameCharacter::Tick( float DeltaTime )
 //{
 //	Super::Tick( DeltaTime );
 //
@@ -30,8 +30,11 @@ AGameCharacter::AGameCharacter()
 void AGameCharacter::BeginPlay()
 {
     SpawnDefaultController();
-    State = CharacterStateEnum::Idle;
+
 	Super::BeginPlay();
+
+
+
 }
 
 
@@ -41,10 +44,19 @@ void AGameCharacter::PostInitProperties()
     this->Health = 100.0f;
     this->Price = { 10.0f, { 10.0f, 1.0f } };
     Super::PostInitProperties();
+
+
 }
+
+//
+//virtual void PostInitializeComponents() override
+//{
+//   
+//}
 
 void AGameCharacter::SpawnDefaultController()
 {
     Super::SpawnDefaultController();
-    Cast<AGameCharacterAIController>(Controller)->Holder = this;
+    //Cast<AGameCharacterAIController>(Controller)->Holder = this;
 }
+

@@ -1,11 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 
 #include "AIController.h"
 #include "GameCharacterAIController.generated.h"
-class AGameCharacter;
+class AMTGameCharacter;
 /**
  * 
  */
@@ -17,16 +16,17 @@ class UE4MT_API AGameCharacterAIController : public AAIController
 private:
   
 
-    AGameCharacter* FindEnemy();
+    AMTGameCharacter* FindEnemy();
     bool FindEnemyAndStartAttack();
 
-
+    //Component selected for current attack action (if applicable)
+    UCharacterAttackComponent* CurrentAttackComponent;
 
 
     void UpdateState();
 
 public:
-    AGameCharacter* Holder = nullptr;
+    AMTGameCharacter* Holder = nullptr;
 
     //// Called when the game starts or when spawned
     //virtual void BeginPlay() override;
