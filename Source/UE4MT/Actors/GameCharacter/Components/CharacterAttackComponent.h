@@ -42,6 +42,20 @@ public:
     USceneComponent* Visuals;
 
 
+    enum class AttackStateEnum
+    {
+        None,
+        Reloading,
+        Loaded,
+    };
+
+protected:
+   
+
+    FTimerHandle ReloadTimerHandle;
+    AttackStateEnum State;
+
+    float LastAttackTime;
 
 public:	
 	// Sets default values for this component's properties
@@ -52,4 +66,12 @@ public:
 	
     void PostInitProperties();
 
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+public:
+    void SetState(AttackStateEnum newState);
+    AttackStateEnum GetState() const;
+    void AttackReloadTimer();
+    void StartAttackProcess();
+    void StopAttackProcess();
 };

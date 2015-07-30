@@ -9,17 +9,76 @@
 void AGameCharacterAIController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+    if (this->Holder->Health <= 0)
+    {
+        TransitionState(AMTGameCharacter::CharacterStateEnum::Dying);
+    }
+
     UpdateState();
 }
 
 
-
-AMTGameCharacter* AGameCharacterAIController::FindEnemy()
+TArray<const AMTGameCharacter*> AGameCharacterAIController::FindEnemiesInRange(const FVector& SourcePos, FRangeFloat Range, const TArray<const AMTGameCharacter*>& CachedCharacters )
 {
-    AMTGameCharacter* res = nullptr;
-    this->CurrentAttackComponent = nullptr;
+    TArray<const AMTGameCharacter*> res;
+    res.Reserve(CachedCharacters.Num());
 
-    TArray<UCharacterAttackComponent*> AttackComponents;
+    float minSq = Range.From * Range.From;
+    float maxSq = Range.To * Range.To;
+    
+    for (auto e : CachedCharacters)
+    {
+        const FVector& pos = e->GetActorLocation();
+        float distSq = (pos - SourcePos).SizeSquared();
+        if ((distSq >= minSq) && (distSq <= maxSq))
+        {
+            res.Add(e);
+        }
+    }
+
+    return res;
+}
+
+bool AGameCharacterAIController::CanAttackCharacter(AMTGameCharacter* Character)
+{
+    bool res = Character->Team != this->Holder->Team;
+
+    res = res && ((Character->State == AMTGameCharacter::CharacterStateEnum::Idle)
+        || (Character->State == AMTGameCharacter::CharacterStateEnum::NavToEnemy)
+        || (Character->State == AMTGameCharacter::CharacterStateEnum::Fighting)
+        || (Character->State == AMTGameCharacter::CharacterStateEnum::NavToEnemyBase)
+        );
+    return res;
+
+}
+
+AGameCharacterAIController::FindEnemyResult AGameCharacterAIController::FindEnemy()
+{
+    FindEnemyResult res{ false, nullptr, nullptr, false };
+
+    typedef TMap<UCharacterAttackComponent*, TArray<const AMTGameCharacter*>> AttackToTargetMap;
+
+    // Damage - can attack immediately
+    // Attack - needs to follow enemy then attack
+
+    this->CurrentAttackComponent = nullptr;
+    TArray<const UCharacterAttackComponent*> AttackComponents;
+    TArray<const AMTGameCharacter*> CachedEnemyCharacters;
+
+    AttackToTargetMap DamageMap;
+    AttackToTargetMap DistanceMap;
+
+    const FVector& MyLocation = this->Holder->GetActorLocation();
+
+    //fill enemy team characters
+    for (TActorIterator<AMTGameCharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+    {
+        if (CanAttackCharacter(*ActorItr))
+        {
+            CachedEnemyCharacters.Add(*ActorItr);
+        }
+    }
 
     const TArray<UActorComponent*>& comps = this->Holder->GetComponents();
     for (UActorComponent* Component : comps)
@@ -28,81 +87,169 @@ AMTGameCharacter* AGameCharacterAIController::FindEnemy()
         if (AttackComp)
         {
             AttackComponents.Add(AttackComp);
-        }
-    }
-    auto f = [](const UCharacterAttackComponent& a, const UCharacterAttackComponent& b){ return a.Priority < b.Priority; };
-    AttackComponents.Sort(f);
-
-    if (AttackComponents.Num() > 0)
-    {
-        UCharacterAttackComponent* SelectedAttack = AttackComponents[0];
-        float CurrentMinDistanceSq = SelectedAttack->DistanceRange.To * SelectedAttack->DistanceRange.To;
-        for (TActorIterator<AMTGameCharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-        {
-            if (ActorItr->Team != this->Holder->Team)
+            TArray<const AMTGameCharacter*> arrDamage = FindEnemiesInRange(MyLocation, AttackComp->DamageRange, CachedEnemyCharacters);
+            if (arrDamage.Num() > 0)
             {
-                float CurrentTestingDistanceSq = (ActorItr->GetActorLocation() - this->Holder->GetActorLocation()).SizeSquared();
-                if (CurrentTestingDistanceSq <= CurrentMinDistanceSq)
-                {
-                    CurrentMinDistanceSq = CurrentTestingDistanceSq;
-                    res = *ActorItr;
-                    this->CurrentAttackComponent = SelectedAttack;
-                }
-                //break;
+                DamageMap.Add(AttackComp, arrDamage);
+            }
+
+            TArray<const AMTGameCharacter*> arrAttack = FindEnemiesInRange(MyLocation, AttackComp->DistanceRange, CachedEnemyCharacters);
+            if (arrAttack.Num())
+            {
+                DistanceMap.Add(AttackComp, arrAttack);
             }
         }
     }
+
+    auto fnDamageMapSort = [](const UCharacterAttackComponent& a, const UCharacterAttackComponent& b) { return (a.DamageRange.To > b.DamageRange.To); };
+    DamageMap.KeySort(fnDamageMapSort);
+
+    auto fnAttackMapSort = [](const UCharacterAttackComponent& a, const UCharacterAttackComponent& b) { return (a.DamageRange.To > b.DamageRange.To); };
+    DistanceMap.KeySort(fnAttackMapSort);
+
+
+    auto fnCharactersArrSort = [&](const AMTGameCharacter& a, const AMTGameCharacter& b) { return (MyLocation - a.GetActorLocation()).SizeSquared() <= (MyLocation - b.GetActorLocation()).SizeSquared(); };
+
+    if (DamageMap.Num() > 0)
+    {
+        AttackToTargetMap::TConstIterator it = DamageMap.CreateConstIterator();
+        TArray<const AMTGameCharacter*> arr = it->Value;
+        arr.Sort(fnCharactersArrSort);
+        this->CurrentAttackComponent = it->Key;
+        res.HasResult = true;
+        res.Target = const_cast<AMTGameCharacter*>(arr[0]);
+        res.AttackComponent = it->Key;
+        res.ImmediateAttack = true;
+    }
+    else if (DistanceMap.Num() > 0)
+    {
+        AttackToTargetMap::TConstIterator it = DistanceMap.CreateConstIterator();
+        TArray<const AMTGameCharacter*> arr = it->Value;
+        arr.Sort(fnCharactersArrSort);
+
+        this->CurrentAttackComponent = it->Key;
+        res.HasResult = true;
+        res.Target = const_cast<AMTGameCharacter*>(arr[0]);
+        res.AttackComponent = it->Key;
+        res.ImmediateAttack = false;
+    }
+
     return res;
 }
 
-bool AGameCharacterAIController::FindEnemyAndStartAttack()
+
+void AGameCharacterAIController::TransitionState(AMTGameCharacter::CharacterStateEnum NewState)
 {
-    bool res = false;
-    AMTGameCharacter* target = FindEnemy();
-    if (target != nullptr)
+    switch (this->Holder->State)
     {
-        float AcceptanceRadius = MTUtils::GetMoveToAcceptanceRadius(this->Holder, target);
-        FVector dist = this->Holder->GetActorLocation() - target->GetActorLocation();
-        float Distance = dist.Size();
-
-
-        if (Distance > AcceptanceRadius * 1.1f)
-        {
-            this->MoveToActor(target, AcceptanceRadius, false, true);
-            res = true;
-        }
+    case AMTGameCharacter::CharacterStateEnum::Fighting:
+    {
+        this->CurrentAttackTarget = nullptr;
+        this->CurrentAttackComponent->StopAttackProcess();
+        this->CurrentAttackComponent = nullptr;
+        break;
     }
-    return res;
+    default:
+        break;
+    }
+    this->Holder->State = NewState;
+
 }
 
 
 void AGameCharacterAIController::UpdateState()
 {
 
+
+
     switch (this->Holder->State)
     {
     case AMTGameCharacter::CharacterStateEnum::Idle:
     {
-        if (FindEnemyAndStartAttack())
+        bool res = false;
+        FindEnemyResult findEnemyResult = FindEnemy();
+        if (findEnemyResult.HasResult)
         {
+            if (findEnemyResult.ImmediateAttack)
+            {
+                TransitionState(AMTGameCharacter::CharacterStateEnum::Fighting);
+                this->CurrentAttackComponent = findEnemyResult.AttackComponent;
+                this->CurrentAttackTarget = findEnemyResult.Target;
+                this->Holder->OnAttackComponentChanged(this->CurrentAttackComponent);
+            }
+            else
+            {
+                float AcceptanceRadius = findEnemyResult.AttackComponent->DamageRange.To + MTUtils::GetMoveToAcceptanceRadius(this->Holder, findEnemyResult.Target);
+                FVector dist = (this->Holder->GetActorLocation() - findEnemyResult.Target->GetActorLocation()) - AcceptanceRadius;
+                float Distance = dist.Size();
+                this->MoveToActor(findEnemyResult.Target, AcceptanceRadius, false, true);
 
-            this->Holder->State = AMTGameCharacter::CharacterStateEnum::NavToEnemy;
+                TransitionState(AMTGameCharacter::CharacterStateEnum::NavToEnemy);
+
+                this->CurrentAttackComponent = findEnemyResult.AttackComponent;
+                this->CurrentAttackTarget = findEnemyResult.Target;
+                this->Holder->OnAttackComponentChanged(this->CurrentAttackComponent);
+            }
+
         }
         break;
     }
     case AMTGameCharacter::CharacterStateEnum::NavToEnemy:
     {
-        if (this->GetMoveStatus() == EPathFollowingStatus::Moving)
+        if (this->GetMoveStatus() == EPathFollowingStatus::Moving) //processing movement
         {
             FVector fv = this->Holder->GetMovementVel();
             int i = 0;
         }
-        else if (this->GetMoveStatus() == EPathFollowingStatus::Idle)
+        else if (this->GetMoveStatus() == EPathFollowingStatus::Idle) //navigation finished. start attack
         {
-            this->Holder->State = AMTGameCharacter::CharacterStateEnum::Idle;
-            this->Holder->OnAttackComponentChanged(this->CurrentAttackComponent);
+            TransitionState(AMTGameCharacter::CharacterStateEnum::Fighting);
+            this->CurrentAttackComponent->StartAttackProcess();
+
+            //Same AttackComponnt stays
+            /*
+            this->Holder->OnAttackComponentChanged(this->CurrentAttackComponent); 
+            */
         }
         break;
     }
+    case AMTGameCharacter::CharacterStateEnum::Fighting:
+    {
+        if (this->CurrentAttackTarget != nullptr) //fight processing
+        {
+
+            if (this->CurrentAttackComponent->GetState() == UCharacterAttackComponent::AttackStateEnum::Loaded)
+            {
+                this->Holder->AttackHitThisTick = true;
+                int32 damage = FMath::RandRange(this->CurrentAttackComponent->DamageRange.From, this->CurrentAttackComponent->DamageRange.To);
+                this->CurrentAttackTarget->TakeDamage(damage, FDamageEvent(), this, this->Holder);
+                this->CurrentAttackComponent->SetState(UCharacterAttackComponent::AttackStateEnum::Reloading);
+            }
+            else
+            {
+                this->Holder->AttackHitThisTick = false;
+            }
+
+
+            if (this->CurrentAttackTarget->IsPendingKill() || (this->CurrentAttackTarget->Health <= 0))// fight finished. Target is dead. Stop attacking
+            {   
+                TransitionState(AMTGameCharacter::CharacterStateEnum::Idle);
+            }
+        }
+
+        break;
+    }
+
     }
 }
+
+void AGameCharacterAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    if (this->CurrentAttackComponent != nullptr)
+    {
+        this->CurrentAttackComponent->StopAttackProcess();
+    }
+    
+    Super::EndPlay(EndPlayReason);
+}
+
