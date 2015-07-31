@@ -58,6 +58,7 @@ void AMTGameCharacter::SpawnDefaultController()
 {
     Super::SpawnDefaultController();
     Cast<AGameCharacterAIController>(Controller)->Holder = this;
+    Controller->AttachRootComponentToActor(this);
 }
 
 float AMTGameCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)

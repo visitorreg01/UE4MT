@@ -160,8 +160,6 @@ void AGameCharacterAIController::TransitionState(AMTGameCharacter::CharacterStat
 void AGameCharacterAIController::UpdateState()
 {
 
-
-
     switch (this->Holder->State)
     {
     case AMTGameCharacter::CharacterStateEnum::Idle:

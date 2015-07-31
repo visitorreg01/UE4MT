@@ -52,11 +52,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
     EMTTeamEnum Team;
 
-
+    //Characher selected new attack component. Or Null in case attack is finished.
     UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Attack Component Changed"))
     void OnAttackComponentChanged(const UCharacterAttackComponent* newComponent);
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character", meta = (DisplayName = "Used to play hit animation. Temporary."))
+    //Used to play hit animation. Sets to True in single tick. Temporary.
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character", meta = (DisplayName = "AttackHitThisTick"))
     bool AttackHitThisTick;
 protected:
   /*  TArray<class UCharacterAttackComponent*> AttackComponents;

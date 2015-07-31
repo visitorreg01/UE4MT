@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UE4MT.h"
+
 #include "MTGameMode.h"
 
 
@@ -36,3 +37,22 @@ AMTGameMode::AMTGameMode(const class FObjectInitializer& init)
     this->PlayerStateClass = AMTPlayerState::StaticClass();
 }
 
+
+
+
+APlayerController* AMTGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole, const FString& Portal, const FString& Options, const TSharedPtr<FUniqueNetId>& UniqueId, FString& ErrorMessage)
+{
+    APlayerController* res = Super::Login(NewPlayer, InRemoteRole, Portal, Options, UniqueId, ErrorMessage);
+    return res;
+}
+
+void AMTGameMode::GenericPlayerInitialization(AController* C)
+{
+    Super::GenericPlayerInitialization(C);
+}
+
+
+void AMTGameMode::StartNewPlayer(APlayerController* NewPlayer)
+{
+    Super::StartNewPlayer(NewPlayer);
+}
