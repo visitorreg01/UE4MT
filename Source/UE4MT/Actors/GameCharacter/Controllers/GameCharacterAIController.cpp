@@ -3,11 +3,9 @@
 #include "UE4MT.h"
 #include "MTDecl.h"
 
-#include "GameCharacterAIController.h"
-
-
 void AGameCharacterAIController::Tick(float DeltaSeconds)
 {
+    
     Super::Tick(DeltaSeconds);
 
     if (this->Holder->Health <= 0)

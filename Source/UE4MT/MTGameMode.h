@@ -28,7 +28,7 @@ public:
     /** start match, or let player enter, immediately */
     virtual void StartNewPlayer(APlayerController* NewPlayer) override;
 
-
+    virtual void RestartPlayer(AController* NewPlayer) override;
 protected:
 
     

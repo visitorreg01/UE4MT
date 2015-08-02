@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "GameFramework/GameState.h"
 #include "UE4MT.h"
+#include "GameFramework/GameState.h"
 #include "MTGameState.generated.h"
 
 /**
@@ -14,5 +14,10 @@ class UE4MT_API AMTGameState : public AGameState
 {
 	GENERATED_BODY()
 
-    
+public:
+    /** World bounds for mini map & camera movement. */
+    FBox WorldBounds;
+
+    /** Mini map camera component. */
+    TWeakObjectPtr<AMTMiniMapCapture> MiniMapCamera;
 };
