@@ -23,6 +23,7 @@ AMTSpectatorPlayerController::AMTSpectatorPlayerController(const FObjectInitiali
     this->bReplicates = true;
     this->bAutoManageActiveCameraTarget = false;
     
+    this->bAttachToPawn = true;
     
 }
 

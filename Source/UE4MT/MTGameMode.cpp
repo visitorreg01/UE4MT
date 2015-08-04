@@ -64,8 +64,8 @@ void AMTGameMode::RestartPlayer(AController* NewPlayer)
     if (spc)
     {
         APawn* pawn = spc->GetPawnOrSpectator();
-        spc->SetViewTarget(pawn);
-        spc->AttachRootComponentToActor(pawn);
+        //spc->SetViewTarget(pawn);
+        //spc->AttachRootComponentToActor(pawn);
         SetSpot(NewPlayer);
     }
 }
@@ -84,6 +84,8 @@ void AMTGameMode::SetSpot(AController* NewPlayer)
         if (NewPC != nullptr)
         {
             NewPC->SetInitialLocationAndRotation(StartSpot->GetActorLocation(), StartSpot->GetActorRotation());
+            APawn* pawn = NewPC->GetPawnOrSpectator();
+            pawn->SetActorLocationAndRotation(StartSpot->GetActorLocation(), StartSpot->GetActorRotation());
         }
     }
 

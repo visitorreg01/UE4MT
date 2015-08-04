@@ -21,6 +21,12 @@ AMTSpectatorPawn::AMTSpectatorPawn(const FObjectInitializer& ObjectInitializer)
     //this->PlayerState
 }
 
+
+void AMTSpectatorPawn::PossessedBy(class AController* NewController)
+{
+    APawn::PossessedBy(NewController);
+}
+
 void AMTSpectatorPawn::OnMouseScrollUp()
 {
     MtCameraComponent->OnZoomIn();

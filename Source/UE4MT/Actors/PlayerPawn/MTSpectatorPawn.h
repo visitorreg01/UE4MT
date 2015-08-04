@@ -22,8 +22,9 @@ class AMTSpectatorPawn : public ASpectatorPawn
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
 	// End ADefaultPawn interface
+protected:
 
-	// The camera component for this camera
+    virtual void PossessedBy(class AController* NewController) override;
 private:
 	UPROPERTY(Category = CameraActor, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UMTCameraComponent* MtCameraComponent;
