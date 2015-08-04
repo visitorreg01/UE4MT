@@ -12,13 +12,17 @@
 
 
 AMTSpectatorPlayerController::AMTSpectatorPlayerController(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 	, bIgnoreInput(false)
 {
 	//CheatClass = UStrategyCheatManager::StaticClass();
 	PrimaryActorTick.bCanEverTick = true;
 	bHidden = false;
 	bShowMouseCursor = true;
+    this->bReplicateMovement = true;
+    this->bReplicates = true;
+    this->bAutoManageActiveCameraTarget = false;
+    
     
 }
 
@@ -42,7 +46,14 @@ void AMTSpectatorPlayerController::SetupInputComponent()
 	FInputActionBinding& ToggleInGameMenuBinding = InputComponent->BindAction("InGameMenu", IE_Pressed, this, &AMTSpectatorPlayerController::OnToggleInGameMenu);
 	ToggleInGameMenuBinding.bExecuteWhenPaused = true;
 
+
+
 }
+void AMTSpectatorPlayerController::SetViewTarget(class AActor* NewViewTarget, FViewTargetTransitionParams TransitionParams)
+{
+    Super::SetViewTarget(NewViewTarget, TransitionParams);
+}
+
 
 void AMTSpectatorPlayerController::GetAudioListenerPosition(FVector& OutLocation, FVector& OutFrontDir, FVector& OutRightDir)
 {
@@ -58,7 +69,7 @@ void AMTSpectatorPlayerController::GetAudioListenerPosition(FVector& OutLocation
 		{
 			FVector2D const ScreenRes = Viewport->GetSizeXY();
 
-            float GroundLevel = 0.0f;// MyGameState->MiniMapCamera->AudioListenerGroundLevel;
+            float GroundLevel = MyGameState->MiniMapCamera->AudioListenerGroundLevel;
 			const FPlane GroundPlane = FPlane(FVector(0,0,GroundLevel), FVector::UpVector);
 			ULocalPlayer* const MyPlayer = Cast<ULocalPlayer>(Player);
 
@@ -91,18 +102,18 @@ void AMTSpectatorPlayerController::OnToggleInGameMenu()
 	//}
 }
 
-void AMTSpectatorPlayerController::UpdateRotation(float DeltaTime)
-{
-	FRotator ViewRotation(0, 0, 0);
-	FRotator DeltaRot(0, 0, 0);
-
-	if (PlayerCameraManager)
-	{
-		PlayerCameraManager->ProcessViewRotation(DeltaTime, ViewRotation, DeltaRot);
-	}
-	
-	SetControlRotation(ViewRotation);
-}
+//void AMTSpectatorPlayerController::UpdateRotation(float DeltaTime)
+//{
+//	FRotator ViewRotation(0, 0, 0);
+//	FRotator DeltaRot(0, 0, 0);
+//
+//	if (PlayerCameraManager)
+//	{
+//		PlayerCameraManager->ProcessViewRotation(DeltaTime, ViewRotation, DeltaRot);
+//	}
+//	
+//	SetControlRotation(ViewRotation);
+//}
 
 void AMTSpectatorPlayerController::ProcessPlayerInput(const float DeltaTime, const bool bGamePaused)
 {
@@ -235,10 +246,10 @@ void AMTSpectatorPlayerController::OnHoldReleased(const FVector2D& ScreenPositio
 
 void AMTSpectatorPlayerController::OnSwipeStarted(const FVector2D& AnchorPosition, float DownTime)
 {
-	//if (GetCameraComponent() != NULL)
-	//{
-	//	GetCameraComponent()->OnSwipeStarted(AnchorPosition);
-	//}
+	if (GetCameraComponent() != NULL)
+	{
+		GetCameraComponent()->OnSwipeStarted(AnchorPosition);
+	}
 
 	//FVector WorldPosition(0.0f);
 	//AActor* const HitActor = GetFriendlyTarget(AnchorPosition, WorldPosition);

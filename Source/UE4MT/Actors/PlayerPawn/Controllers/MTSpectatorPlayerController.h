@@ -16,7 +16,7 @@ class AMTSpectatorPlayerController : public APlayerController
 public:
 	// Begin PlayerController interface
 	/** fixed rotation */
-	virtual void UpdateRotation(float DeltaTime) override;
+	//virtual void UpdateRotation(float DeltaTime) override;
 
 protected:
 	/** update input detection */
@@ -26,7 +26,7 @@ protected:
 
 public:
 
-	
+    virtual void SetViewTarget(class AActor* NewViewTarget, FViewTargetTransitionParams TransitionParams = FViewTargetTransitionParams()) override;
 	/** set desired camera position. */
 	void SetCameraTarget(const FVector& CameraTarget);
 
@@ -101,7 +101,7 @@ protected:
 	 */
 	virtual void GetAudioListenerPosition(FVector& Location, FVector& FrontDir, FVector& RightDir) override;
 
-private:
+public:
 	/** Helper to return cast version of Spectator pawn. */		
 	AMTSpectatorPawn* GetMtSpectatorPawn() const;
 	

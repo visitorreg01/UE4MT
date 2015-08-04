@@ -12,6 +12,9 @@ UMTCameraComponent::UMTCameraComponent(const FObjectInitializer& ObjectInitializ
     MaxZoomLevel = 1.0f;
     MiniMapBoundsLimit = 0.8f;
     StartSwipeCoords.Set(0.0f, 0.0f, 0.0f);
+
+    this->bUsePawnControlRotation = true;
+
 }
 
 void UMTCameraComponent::OnZoomIn()
@@ -33,7 +36,7 @@ void UMTCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& OutRes
         const float CurrentOffset = MinCameraOffset + ZoomAlpha * (MaxCameraOffset - MinCameraOffset);
         FVector Pos2 = Controller->GetFocalLocation();
         OutResult.Location = Controller->GetFocalLocation() - FixedCameraAngle.Vector() * CurrentOffset;
-        OutResult.Rotation = FixedCameraAngle;
+        OutResult.Rotation = Controller->GetControlRotation();// FixedCameraAngle;
     }
 }
 
@@ -135,7 +138,9 @@ void UMTCameraComponent::MoveForward(float Val)
         if ((Val != 0.f) && (Controller != NULL))
         {
             const FRotationMatrix R(Controller->PlayerCameraManager->GetCameraRotation());
-            const FVector WorldSpaceAccel = R.GetScaledAxis(EAxis::X) * 100.0f;
+            FRotationMatrix m(FRotator(0));
+
+            const FVector WorldSpaceAccel = m.GetScaledAxis(EAxis::X) * 100.0f;
 
             // transform to world space and add it
             OwnerPawn->AddMovementInput(WorldSpaceAccel, Val);

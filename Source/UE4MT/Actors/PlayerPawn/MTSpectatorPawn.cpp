@@ -9,6 +9,16 @@ AMTSpectatorPawn::AMTSpectatorPawn(const FObjectInitializer& ObjectInitializer)
 	GetCollisionComponent()->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
 	bAddDefaultMovementBindings = false;
 	MtCameraComponent = CreateDefaultSubobject<UMTCameraComponent>(TEXT("MtCameraComponent"));
+
+    this->bReplicateMovement = true;
+    this->bReplicates = true;
+    this->bUseControllerRotationPitch = true;
+    this->bUseControllerRotationRoll = true;
+    this->bUseControllerRotationYaw = true;
+    
+    this->bFindCameraComponentWhenViewTarget = true;
+    //this->bTakeCameraControlWhenPossessed = true;
+    //this->PlayerState
 }
 
 void AMTSpectatorPawn::OnMouseScrollUp()

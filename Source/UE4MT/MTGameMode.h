@@ -14,6 +14,11 @@ class UE4MT_API AMTGameMode : public AGameMode
     GENERATED_BODY()
 public:
 
+    //UPROPERTY()
+        ///** class of my CheatManager. */
+        //UPROPERTY()
+        //TSubclassOf<UMTCameraComponent>
+
     AMTGameMode(const class FObjectInitializer& init);
 
 
@@ -31,6 +36,5 @@ public:
     virtual void RestartPlayer(AController* NewPlayer) override;
 protected:
 
-    
-	
+    void SetSpot(AController* NewPlayer);
 };

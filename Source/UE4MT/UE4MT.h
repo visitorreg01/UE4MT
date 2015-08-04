@@ -19,6 +19,9 @@
 #include "Generic/MTInput.h"
 #include "Generic/MTMiniMapCapture.h"
 
+#include "Generic/DummyActor.h"
+
+
 #include "Actors/GameCharacter/MTGameCharacter.h"
 #include "Actors/GameCharacter/Components/CharacterAttackComponent.h"
 #include "Actors/GameCharacter/Components/CharacterProtectionComponent.h"

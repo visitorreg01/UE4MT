@@ -10,6 +10,7 @@ UMTSpectatorPawnMovement::UMTSpectatorPawnMovement(const FObjectInitializer& Obj
 	MaxSpeed  = 16000.f;
 	Acceleration = 5000.f;
 	Deceleration = 4000.f;
+    
 }
 
 

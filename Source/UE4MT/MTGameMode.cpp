@@ -47,19 +47,7 @@ APlayerController* AMTGameMode::Login(UPlayer* NewPlayer, ENetRole InRemoteRole,
 void AMTGameMode::GenericPlayerInitialization(AController* C)
 {
     Super::GenericPlayerInitialization(C);
-
-    AActor* const StartSpot = FindPlayerStart(C);
-    if (StartSpot != nullptr)
-    {
-        // initialize and start it up
-        InitStartSpot(StartSpot, C);
-
-        AMTSpectatorPlayerController* const NewPC = Cast<AMTSpectatorPlayerController>(C);
-        if (NewPC != nullptr)
-        {
-            NewPC->SetInitialLocationAndRotation(StartSpot->GetActorLocation(), StartSpot->GetActorRotation());
-        }
-    }
+    //SetSpot(C);
 }
 
 
@@ -69,6 +57,22 @@ void AMTGameMode::StartNewPlayer(APlayerController* NewPlayer)
 }
 
 void AMTGameMode::RestartPlayer(AController* NewPlayer)
+{
+    Super::RestartPlayer(NewPlayer);
+
+    AMTSpectatorPlayerController* spc = Cast<AMTSpectatorPlayerController>(NewPlayer);
+    if (spc)
+    {
+        APawn* pawn = spc->GetPawnOrSpectator();
+        spc->SetViewTarget(pawn);
+        spc->AttachRootComponentToActor(pawn);
+        SetSpot(NewPlayer);
+    }
+}
+
+
+
+void AMTGameMode::SetSpot(AController* NewPlayer)
 {
     AActor* const StartSpot = FindPlayerStart(NewPlayer);
     if (StartSpot != nullptr)
@@ -82,8 +86,19 @@ void AMTGameMode::RestartPlayer(AController* NewPlayer)
             NewPC->SetInitialLocationAndRotation(StartSpot->GetActorLocation(), StartSpot->GetActorRotation());
         }
     }
-    else
+
+
+    if (!NewPlayer->HasAuthority())
     {
-        //UE_LOG(LogGame, Warning, TEXT("Player start not found, failed to restart player"));
+        // Just call SetControlRotation() on the client
+        NewPlayer->SetControlRotation(StartSpot->GetActorRotation());
+        return;
     }
+
+    // On server
+    NewPlayer->SetControlRotation(StartSpot->GetActorRotation());
+
+    // Force on client
+    NewPlayer->ClientSetRotation(StartSpot->GetActorRotation());
+
 }
