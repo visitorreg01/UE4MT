@@ -39,6 +39,7 @@
 
 
 #include "Player/MTPlayerState.h"
+#include "Player/MTSaveGame.h"
 
 #include "MTGameMode.h"
 #include "MTGameState.h"
