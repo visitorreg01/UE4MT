@@ -15,7 +15,10 @@ class UE4MT_API AMTPlayerState : public APlayerState
 	GENERATED_BODY()
 public:
 
-    
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Player's Name"), Category = "Player Data")
     FString DisplayName;
 	
