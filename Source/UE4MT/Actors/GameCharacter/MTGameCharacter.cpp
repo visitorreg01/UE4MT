@@ -61,14 +61,14 @@ void AMTGameCharacter::SpawnDefaultController()
     Controller->AttachRootComponentToActor(this);
 }
 
-//float AMTGameCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
-//{
-//    float res = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-//    this->Health -= res;
-//    /*if (this->Health <= 0)
-//    {
-//        this->Destroy();
-//    }*/
-//
-//    return res;
-//}
+float AMTGameCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+    float res = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+    this->Health -= res;
+    /*if (this->Health <= 0)
+    {
+        this->Destroy();
+    }*/
+
+    return res;
+}

@@ -62,7 +62,7 @@ protected:
   /*  TArray<class UCharacterAttackComponent*> AttackComponents;
     TArray<class UCharacterProtectionComponent*> ProtectionComponents;*/
 public:	
-    //virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+    virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 
 	// Sets default values for this actor's properties
